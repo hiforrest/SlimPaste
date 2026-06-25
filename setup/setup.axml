@@ -109,7 +109,7 @@
                            VerticalAlignment="Center"
                            Margin="28,0,0,0"/>
                 <Button x:Name="CloseButton"
-                        Content="×"
+                        Content="✕"
                         Width="44"
                         Height="36"
                         HorizontalAlignment="Right"
@@ -117,7 +117,8 @@
                         Margin="0,0,18,0"
                         Background="{StaticResource ButtonBg}"
                         BorderBrush="Transparent"
-                        FontSize="28"
+                        Padding="0"
+                        FontSize="20"
                         Foreground="{StaticResource TextMuted}"/>
             </Grid>
 
@@ -153,10 +154,28 @@
                             <TextBlock Text="Output mode: JPG Quality" Foreground="{StaticResource TextMuted}" Margin="0,0,0,8"/>
                             <TextBlock Text="PNG Lossless: Coming soon" Foreground="{StaticResource TextMuted}" Margin="0,0,0,14"/>
                             <ComboBox x:Name="QualityPresetCombo" SelectedIndex="1" Background="{StaticResource InputBg}" Foreground="{StaticResource TextMain}">
-                                <ComboBoxItem Content="Small 70" Tag="70" Background="{StaticResource InputBg}" Foreground="{StaticResource TextMain}"/>
-                                <ComboBoxItem Content="Balanced 80" Tag="80" Background="{StaticResource InputBg}" Foreground="{StaticResource TextMain}"/>
-                                <ComboBoxItem Content="High 90" Tag="90" Background="{StaticResource InputBg}" Foreground="{StaticResource TextMain}"/>
-                                <ComboBoxItem Content="Near-lossless visual 95" Tag="95" Background="{StaticResource InputBg}" Foreground="{StaticResource TextMain}"/>
+                                <ComboBox.ItemContainerStyle>
+                                    <Style TargetType="ComboBoxItem">
+                                        <Setter Property="Background" Value="{StaticResource InputBg}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Padding" Value="10,6"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsHighlighted" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource BorderMuted}"/>
+                                                <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource Accent}"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ComboBox.ItemContainerStyle>
+                                <ComboBoxItem Content="Small 70" Tag="70"/>
+                                <ComboBoxItem Content="Balanced 80" Tag="80"/>
+                                <ComboBoxItem Content="High 90" Tag="90"/>
+                                <ComboBoxItem Content="Near-lossless visual 95" Tag="95"/>
                             </ComboBox>
                             <Grid Margin="0,14,0,0">
                                 <Grid.ColumnDefinitions>

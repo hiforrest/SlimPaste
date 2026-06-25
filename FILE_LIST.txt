@@ -1,0 +1,14 @@
+CHANGELOG.md
+ClipboardJpgPaste.ahk
+FILE_LIST.txt
+LICENSE
+README.md
+THIRD_PARTY_NOTICES.md
+assets/README.md
+config/default-config.ini
+lib/ahk-xaml/README.md
+setup/settings-wpf.ps1
+setup/settings_gui.ahk
+setup/setup.axml
+themes.ini
+worker/clipboard-jpeg-worker.ps1

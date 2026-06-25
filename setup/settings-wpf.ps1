@@ -1,0 +1,303 @@
+[CmdletBinding()]
+param(
+    [string]$ConfigPath,
+    [string]$DefaultConfigPath,
+    [string]$AxmlPath
+)
+
+Set-StrictMode -Version 2.0
+$ErrorActionPreference = "Stop"
+
+Add-Type -AssemblyName PresentationFramework
+Add-Type -AssemblyName PresentationCore
+Add-Type -AssemblyName WindowsBase
+Add-Type -AssemblyName System.Xaml
+Add-Type -AssemblyName System.Windows.Forms
+
+function Read-Ini {
+    param([string]$Path)
+
+    $result = @{}
+    $section = ""
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return $result
+    }
+
+    foreach ($line in Get-Content -LiteralPath $Path -Encoding UTF8) {
+        $trim = $line.Trim()
+        if ($trim -eq "" -or $trim.StartsWith(";") -or $trim.StartsWith("#")) { continue }
+
+        if ($trim.StartsWith("[") -and $trim.EndsWith("]")) {
+            $section = $trim.Trim("[", "]")
+            if (-not $result.ContainsKey($section)) { $result[$section] = @{} }
+            continue
+        }
+
+        $idx = $trim.IndexOf("=")
+        if ($idx -gt 0 -and $section -ne "") {
+            $key = $trim.Substring(0, $idx).Trim()
+            $value = $trim.Substring($idx + 1).Trim()
+            $result[$section][$key] = $value
+        }
+    }
+
+    return $result
+}
+
+function Get-ConfigValue {
+    param(
+        [hashtable]$Ini,
+        [string]$Key,
+        [string]$Default
+    )
+
+    if ($Ini.ContainsKey("General") -and $Ini["General"].ContainsKey($Key)) {
+        return [string]$Ini["General"][$Key]
+    }
+
+    return $Default
+}
+
+function Write-Config {
+    param(
+        [string]$Path,
+        [hashtable]$Values
+    )
+
+    $dir = Split-Path -Parent $Path
+    if (-not (Test-Path -LiteralPath $dir)) {
+        [void][System.IO.Directory]::CreateDirectory($dir)
+    }
+
+    $orderedKeys = @(
+        "Hotkey",
+        "UseJpegli",
+        "JpegliPath",
+        "OutputMode",
+        "Quality",
+        "TempDirectory",
+        "ImageFallback",
+        "CleanupDays",
+        "ShowNotification",
+        "StartupWithWindows"
+    )
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("[General]")
+    foreach ($key in $orderedKeys) {
+        $value = if ($Values.ContainsKey($key)) { $Values[$key] } else { "" }
+        $lines.Add("$key=$value")
+    }
+
+    Set-Content -LiteralPath $Path -Value $lines -Encoding UTF8
+}
+
+function To-Bool {
+    param([string]$Value)
+    return $Value -eq "1" -or $Value.ToLowerInvariant() -in @("true", "yes", "on")
+}
+
+function Bool-To-Ini {
+    param([object]$Value)
+    if ([bool]$Value) { return "1" }
+    return "0"
+}
+
+function Clamp-Int {
+    param([string]$Value, [int]$Min, [int]$Max, [int]$Default)
+    $n = 0
+    if (-not [int]::TryParse($Value, [ref]$n)) { return $Default }
+    if ($n -lt $Min) { return $Min }
+    if ($n -gt $Max) { return $Max }
+    return $n
+}
+
+function Expand-Env {
+    param([string]$Value)
+    return [Environment]::ExpandEnvironmentVariables($Value)
+}
+
+function Hotkey-Readable {
+    param([string]$Hotkey)
+    if ([string]::IsNullOrWhiteSpace($Hotkey)) { return "Hotkey is not set" }
+
+    $text = $Hotkey
+    $text = $text.Replace("^", "Ctrl + ")
+    $text = $text.Replace("!", "Alt + ")
+    $text = $text.Replace("+", "Shift + ")
+    $text = $text.Replace("#", "Win + ")
+    return "Hotkey is " + $text.Trim(" +".ToCharArray())
+}
+
+if (-not (Test-Path -LiteralPath $ConfigPath)) {
+    $dir = Split-Path -Parent $ConfigPath
+    if (-not (Test-Path -LiteralPath $dir)) {
+        [void][System.IO.Directory]::CreateDirectory($dir)
+    }
+    if (Test-Path -LiteralPath $DefaultConfigPath) {
+        Copy-Item -LiteralPath $DefaultConfigPath -Destination $ConfigPath -Force
+    }
+}
+
+[xml]$xaml = Get-Content -LiteralPath $AxmlPath -Raw -Encoding UTF8
+$reader = New-Object System.Xml.XmlNodeReader $xaml
+$window = [Windows.Markup.XamlReader]::Load($reader)
+
+function C {
+    param([string]$Name)
+    return $window.FindName($Name)
+}
+
+$ini = Read-Ini -Path $ConfigPath
+
+$HotkeyBox = C "HotkeyBox"
+$HotkeyReadable = C "HotkeyReadable"
+$UseJpegliCheck = C "UseJpegliCheck"
+$JpegliPathBox = C "JpegliPathBox"
+$SelectJpegliButton = C "SelectJpegliButton"
+$JpegliStatus = C "JpegliStatus"
+$QualityPresetCombo = C "QualityPresetCombo"
+$QualitySlider = C "QualitySlider"
+$QualityBox = C "QualityBox"
+$ImageFallbackCheck = C "ImageFallbackCheck"
+$TempDirectoryBox = C "TempDirectoryBox"
+$SelectTempButton = C "SelectTempButton"
+$CleanupDaysBox = C "CleanupDaysBox"
+$OpenTempButton = C "OpenTempButton"
+$StartupCheck = C "StartupCheck"
+$NotificationCheck = C "NotificationCheck"
+$SaveButton = C "SaveButton"
+$CancelButton = C "CancelButton"
+$CloseButton = C "CloseButton"
+$HeaderPanel = C "HeaderPanel"
+
+$HotkeyBox.Text = Get-ConfigValue $ini "Hotkey" "^!v"
+$UseJpegliCheck.IsChecked = To-Bool (Get-ConfigValue $ini "UseJpegli" "1")
+$JpegliPathBox.Text = Get-ConfigValue $ini "JpegliPath" "D:\GProgram\jxl-x64-windows-static\cjpegli.exe"
+$quality = Clamp-Int (Get-ConfigValue $ini "Quality" "80") 1 100 80
+$QualitySlider.Value = $quality
+$QualityBox.Text = [string]$quality
+$ImageFallbackCheck.IsChecked = To-Bool (Get-ConfigValue $ini "ImageFallback" "0")
+$TempDirectoryBox.Text = Get-ConfigValue $ini "TempDirectory" "%TEMP%\ClipboardJpg"
+$CleanupDaysBox.Text = Get-ConfigValue $ini "CleanupDays" "7"
+$StartupCheck.IsChecked = To-Bool (Get-ConfigValue $ini "StartupWithWindows" "0")
+$NotificationCheck.IsChecked = To-Bool (Get-ConfigValue $ini "ShowNotification" "1")
+
+function Update-JpegliStatus {
+    $path = Expand-Env $JpegliPathBox.Text
+    if ([string]::IsNullOrWhiteSpace($path)) {
+        $JpegliStatus.Text = "JPEGli path is empty. System JPEG fallback will be used."
+        $JpegliStatus.Foreground = "#FFBDBDBD"
+    } elseif (Test-Path -LiteralPath $path) {
+        $JpegliStatus.Text = "JPEGli found"
+        $JpegliStatus.Foreground = "#FF6DBBFF"
+    } else {
+        $JpegliStatus.Text = "JPEGli not found. Runtime will use system JPEG fallback."
+        $JpegliStatus.Foreground = "#FFFFC66D"
+    }
+}
+
+function Update-HotkeyText {
+    $HotkeyReadable.Text = Hotkey-Readable $HotkeyBox.Text
+}
+
+function Sync-PresetFromQuality {
+    $q = [int]$QualitySlider.Value
+    for ($i = 0; $i -lt $QualityPresetCombo.Items.Count; $i++) {
+        $item = $QualityPresetCombo.Items[$i]
+        if ([string]$item.Tag -eq [string]$q) {
+            $QualityPresetCombo.SelectedIndex = $i
+            return
+        }
+    }
+    $QualityPresetCombo.SelectedIndex = -1
+}
+
+Update-JpegliStatus
+Update-HotkeyText
+Sync-PresetFromQuality
+
+$HotkeyBox.Add_TextChanged({ Update-HotkeyText })
+$JpegliPathBox.Add_TextChanged({ Update-JpegliStatus })
+
+$HeaderPanel.Add_MouseLeftButtonDown({
+    try { $window.DragMove() } catch {}
+})
+
+$CloseButton.Add_Click({ $window.Close() })
+$CancelButton.Add_Click({ $window.Close() })
+
+$QualitySlider.Add_ValueChanged({
+    $QualityBox.Text = [string][int]$QualitySlider.Value
+    Sync-PresetFromQuality
+})
+
+$QualityBox.Add_LostFocus({
+    $q = Clamp-Int $QualityBox.Text 1 100 80
+    $QualitySlider.Value = $q
+    $QualityBox.Text = [string]$q
+})
+
+$QualityPresetCombo.Add_SelectionChanged({
+    $item = $QualityPresetCombo.SelectedItem
+    if ($item -and $item.Tag) {
+        $QualitySlider.Value = [int]$item.Tag
+    }
+})
+
+$SelectJpegliButton.Add_Click({
+    $dlg = New-Object System.Windows.Forms.OpenFileDialog
+    $dlg.Title = "Select cjpegli.exe"
+    $dlg.Filter = "cjpegli.exe|cjpegli.exe|Executable files (*.exe)|*.exe|All files (*.*)|*.*"
+    $dlg.FileName = "cjpegli.exe"
+    if ($dlg.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        $JpegliPathBox.Text = $dlg.FileName
+    }
+})
+
+$SelectTempButton.Add_Click({
+    $dlg = New-Object System.Windows.Forms.FolderBrowserDialog
+    $dlg.Description = "Select temporary output folder"
+    $expanded = Expand-Env $TempDirectoryBox.Text
+    if (Test-Path -LiteralPath $expanded) { $dlg.SelectedPath = $expanded }
+    if ($dlg.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        $TempDirectoryBox.Text = $dlg.SelectedPath
+    }
+})
+
+$OpenTempButton.Add_Click({
+    $dir = Expand-Env $TempDirectoryBox.Text
+    if (-not (Test-Path -LiteralPath $dir)) {
+        [void][System.IO.Directory]::CreateDirectory($dir)
+    }
+    Start-Process explorer.exe -ArgumentList "`"$dir`""
+})
+
+$SaveButton.Add_Click({
+    $qualityValue = Clamp-Int $QualityBox.Text 1 100 80
+    $cleanupValue = Clamp-Int $CleanupDaysBox.Text 0 3650 7
+
+    $values = @{
+        Hotkey = $HotkeyBox.Text.Trim()
+        UseJpegli = Bool-To-Ini $UseJpegliCheck.IsChecked
+        JpegliPath = $JpegliPathBox.Text.Trim()
+        OutputMode = "jpg_quality"
+        Quality = [string]$qualityValue
+        TempDirectory = $TempDirectoryBox.Text.Trim()
+        ImageFallback = Bool-To-Ini $ImageFallbackCheck.IsChecked
+        CleanupDays = [string]$cleanupValue
+        ShowNotification = Bool-To-Ini $NotificationCheck.IsChecked
+        StartupWithWindows = Bool-To-Ini $StartupCheck.IsChecked
+    }
+
+    if ([string]::IsNullOrWhiteSpace($values.Hotkey)) {
+        [System.Windows.MessageBox]::Show("Hotkey cannot be empty.", "Clipboard JPG Paste Setup", "OK", "Warning") | Out-Null
+        return
+    }
+
+    Write-Config -Path $ConfigPath -Values $values
+    $window.Close()
+})
+
+[void]$window.ShowDialog()

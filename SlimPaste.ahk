@@ -2,15 +2,15 @@
 #SingleInstance Force
 Persistent
 
-; Clipboard JPG Paste / 剪贴板图片瘦身粘贴
+; SlimPaste / 剪贴板图片瘦身粘贴
 ; First version:
 ; - Dedicated hotkey only, default Ctrl+Alt+V
 ; - PowerShell STA worker reads clipboard image / image file, writes JPG file object back
 ; - Does not intercept ordinary Ctrl+V
 
-global APP_NAME := "Clipboard JPG Paste"
+global APP_NAME := "SlimPaste"
 global APP_DIR := A_ScriptDir
-global CONFIG_DIR := A_AppData "\ClipboardJpgPaste"
+global CONFIG_DIR := A_AppData "\SlimPaste"
 global CONFIG_PATH := CONFIG_DIR "\config.ini"
 global DEFAULT_CONFIG_PATH := APP_DIR "\config\default-config.ini"
 global WORKER_PATH := APP_DIR "\worker\clipboard-jpeg-worker.ps1"
@@ -56,7 +56,7 @@ UseJpegli=1
 JpegliPath=D:\GProgram\jxl-x64-windows-static\cjpegli.exe
 OutputMode=jpg_quality
 Quality=80
-TempDirectory=%TEMP%\ClipboardJpg
+TempDirectory=%TEMP%\SlimPaste
 ImageFallback=0
 CleanupDays=7
 ShowNotification=1
@@ -192,7 +192,7 @@ CompressAndPaste(*) {
             ShowTip("Image pasted", msg)
         }
     } catch as err {
-        ShowTip("Clipboard JPG Paste", "Unexpected error: " err.Message)
+        ShowTip(APP_NAME, "Unexpected error: " err.Message)
         Send("^v")
     } finally {
         Processing := false
@@ -209,8 +209,8 @@ RunWorker() {
     outputDir := ExpandEnvVars(Config["TempDirectory"])
     DirCreate(outputDir)
 
-    outFile := A_Temp "\clipboardjpgpaste_" A_TickCount "_out.json"
-    errFile := A_Temp "\clipboardjpgpaste_" A_TickCount "_err.txt"
+    outFile := A_Temp "\slimpaste_" A_TickCount "_out.json"
+    errFile := A_Temp "\slimpaste_" A_TickCount "_err.txt"
 
     args := "-NoProfile -ExecutionPolicy Bypass -STA -File " QuoteArg(WORKER_PATH)
     args .= " -Quality " Config["Quality"]
@@ -343,12 +343,12 @@ TogglePauseHotkey(*) {
         try Hotkey(RegisteredHotkey, "On")
         HotkeyPaused := false
         try A_TrayMenu.Uncheck("Pause Hotkey")
-        ShowTip("Hotkey enabled", "Clipboard JPG Paste hotkey is active.")
+        ShowTip("Hotkey enabled", "SlimPaste hotkey is active.")
     } else {
         try Hotkey(RegisteredHotkey, "Off")
         HotkeyPaused := true
         try A_TrayMenu.Check("Pause Hotkey")
-        ShowTip("Hotkey paused", "Clipboard JPG Paste hotkey is paused.")
+        ShowTip("Hotkey paused", "SlimPaste hotkey is paused.")
     }
 }
 

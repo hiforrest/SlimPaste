@@ -179,7 +179,7 @@ $quality = Clamp-Int (Get-ConfigValue $ini "Quality" "80") 1 100 80
 $QualitySlider.Value = $quality
 $QualityBox.Text = [string]$quality
 $ImageFallbackCheck.IsChecked = To-Bool (Get-ConfigValue $ini "ImageFallback" "0")
-$TempDirectoryBox.Text = Get-ConfigValue $ini "TempDirectory" "%TEMP%\ClipboardJpg"
+$TempDirectoryBox.Text = Get-ConfigValue $ini "TempDirectory" "%TEMP%\SlimPaste"
 $CleanupDaysBox.Text = Get-ConfigValue $ini "CleanupDays" "7"
 $StartupCheck.IsChecked = To-Bool (Get-ConfigValue $ini "StartupWithWindows" "0")
 $NotificationCheck.IsChecked = To-Bool (Get-ConfigValue $ini "ShowNotification" "1")
@@ -292,7 +292,7 @@ $SaveButton.Add_Click({
     }
 
     if ([string]::IsNullOrWhiteSpace($values.Hotkey)) {
-        [System.Windows.MessageBox]::Show("Hotkey cannot be empty.", "Clipboard JPG Paste Setup", "OK", "Warning") | Out-Null
+        [System.Windows.MessageBox]::Show("Hotkey cannot be empty.", "SlimPaste Setup", "OK", "Warning") | Out-Null
         return
     }
 

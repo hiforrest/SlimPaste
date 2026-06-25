@@ -2,7 +2,7 @@
 param(
     [int]$Quality = 80,
     [int]$Dpi = 96,
-    [string]$OutputDirectory = "$env:TEMP\ClipboardJpg",
+    [string]$OutputDirectory = "$env:TEMP\SlimPaste",
     [string]$JpegliPath = "",
     [switch]$DisableJpegli,
     [switch]$ImageFallback,

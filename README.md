@@ -1,4 +1,4 @@
-# Clipboard JPG Paste / 剪贴板图片瘦身粘贴
+# SlimPaste / 剪贴板图片瘦身粘贴
 
 A small Windows tray utility based on AutoHotkey v2 and PowerShell.
 
@@ -18,7 +18,7 @@ Implemented:
   - Pause Hotkey
   - Reload
   - Exit
-- Config file at `%APPDATA%\ClipboardJpgPaste\config.ini`
+- Config file at `%APPDATA%\SlimPaste\config.ini`
 - Startup cleanup for old temp files
 - PowerShell STA worker
 - Clipboard image detection
@@ -52,7 +52,7 @@ The app works without JPEGli by falling back to the Windows system JPEG encoder.
 ## Run
 
 1. Install AutoHotkey v2.
-2. Run `ClipboardJpgPaste.ahk`.
+2. Run `SlimPaste.ahk`.
 3. Copy a screenshot or image.
 4. Press `Ctrl + Alt + V`.
 5. Paste target receives a compressed JPG file object.
@@ -68,7 +68,7 @@ UseJpegli=1
 JpegliPath=D:\GProgram\jxl-x64-windows-static\cjpegli.exe
 OutputMode=jpg_quality
 Quality=80
-TempDirectory=%TEMP%\ClipboardJpg
+TempDirectory=%TEMP%\SlimPaste
 ImageFallback=0
 CleanupDays=7
 ShowNotification=1
@@ -78,7 +78,7 @@ StartupWithWindows=0
 Runtime config is stored in:
 
 ```text
-%APPDATA%\ClipboardJpgPaste\config.ini
+%APPDATA%\SlimPaste\config.ini
 ```
 
 ## PowerShell worker command shape
@@ -87,7 +87,7 @@ Runtime config is stored in:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File worker\clipboard-jpeg-worker.ps1 `
   -Quality 80 `
   -Dpi 96 `
-  -OutputDirectory "%TEMP%\ClipboardJpg" `
+  -OutputDirectory "%TEMP%\SlimPaste" `
   -JpegliPath "D:\GProgram\jxl-x64-windows-static\cjpegli.exe" `
   -JsonOutput
 ```
@@ -114,7 +114,7 @@ Image success:
   "hadImage": true,
   "encoder": "jpegli",
   "source": "clipboard image data",
-  "jpgPath": "C:\\Users\\xxx\\AppData\\Local\\Temp\\ClipboardJpg\\clipboard_20260625_123456_000.jpg",
+  "jpgPath": "C:\\Users\\xxx\\AppData\\Local\\Temp\\SlimPaste\\clipboard_20260625_123456_000.jpg",
   "sourceBytes": 1250000,
   "outputBytes": 182000,
   "width": 1920,
@@ -165,7 +165,7 @@ If you later vendor ahko's ahk-xaml engine under `lib/ahk-xaml/`, keep its MIT l
 
 For a shareable version:
 
-1. Use Ahk2Exe to compile `ClipboardJpgPaste.ahk`.
+1. Use Ahk2Exe to compile `SlimPaste.ahk`.
 2. Keep these folders beside the exe:
    - `worker`
    - `setup`

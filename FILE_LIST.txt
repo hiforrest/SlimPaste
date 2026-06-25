@@ -1,5 +1,5 @@
 CHANGELOG.md
-ClipboardJpgPaste.ahk
+SlimPaste.ahk
 FILE_LIST.txt
 LICENSE
 README.md

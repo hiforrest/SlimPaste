@@ -156,20 +156,24 @@
                             <ComboBox x:Name="QualityPresetCombo" SelectedIndex="1" Background="{StaticResource InputBg}" Foreground="{StaticResource TextMain}">
                                 <ComboBox.ItemContainerStyle>
                                     <Style TargetType="ComboBoxItem">
-                                        <Setter Property="Background" Value="{StaticResource InputBg}"/>
-                                        <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Setter Property="Padding" Value="10,6"/>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsHighlighted" Value="True">
-                                                <Setter Property="Background" Value="{StaticResource BorderMuted}"/>
-                                                <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
-                                            </Trigger>
-                                            <Trigger Property="IsSelected" Value="True">
-                                                <Setter Property="Background" Value="{StaticResource Accent}"/>
-                                                <Setter Property="Foreground" Value="White"/>
-                                            </Trigger>
-                                        </Style.Triggers>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ComboBoxItem">
+                                                    <Border Name="Bd" Background="{StaticResource InputBg}" BorderThickness="0" Padding="10,6">
+                                                        <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsHighlighted" Value="True">
+                                                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource BorderMuted}"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource Accent}"/>
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
                                     </Style>
                                 </ComboBox.ItemContainerStyle>
                                 <ComboBoxItem Content="Small 70" Tag="70"/>

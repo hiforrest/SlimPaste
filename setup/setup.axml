@@ -152,15 +152,11 @@
                         <StackPanel>
                             <TextBlock Text="Output mode: JPG Quality" Foreground="{StaticResource TextMuted}" Margin="0,0,0,8"/>
                             <TextBlock Text="PNG Lossless: Coming soon" Foreground="{StaticResource TextMuted}" Margin="0,0,0,14"/>
-                            <ComboBox x:Name="QualityPresetCombo" SelectedIndex="1">
-                                <ComboBox.Resources>
-                                    <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="{StaticResource InputBg}"/>
-                                    <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}" Color="{StaticResource TextMain}"/>
-                                </ComboBox.Resources>
-                                <ComboBoxItem Content="Small 70" Tag="70"/>
-                                <ComboBoxItem Content="Balanced 80" Tag="80"/>
-                                <ComboBoxItem Content="High 90" Tag="90"/>
-                                <ComboBoxItem Content="Near-lossless visual 95" Tag="95"/>
+                            <ComboBox x:Name="QualityPresetCombo" SelectedIndex="1" Background="{StaticResource InputBg}" Foreground="{StaticResource TextMain}">
+                                <ComboBoxItem Content="Small 70" Tag="70" Background="{StaticResource InputBg}" Foreground="{StaticResource TextMain}"/>
+                                <ComboBoxItem Content="Balanced 80" Tag="80" Background="{StaticResource InputBg}" Foreground="{StaticResource TextMain}"/>
+                                <ComboBoxItem Content="High 90" Tag="90" Background="{StaticResource InputBg}" Foreground="{StaticResource TextMain}"/>
+                                <ComboBoxItem Content="Near-lossless visual 95" Tag="95" Background="{StaticResource InputBg}" Foreground="{StaticResource TextMain}"/>
                             </ComboBox>
                             <Grid Margin="0,14,0,0">
                                 <Grid.ColumnDefinitions>

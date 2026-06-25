@@ -6,7 +6,7 @@
     Height="760"
     WindowStartupLocation="CenterScreen"
     WindowStyle="None"
-    ResizeMode="CanResize"
+    ResizeMode="NoResize"
     Background="#1E1E1E"
     Foreground="#F2F2F2"
     FontFamily="Segoe UI">
@@ -129,6 +129,7 @@
                             <TextBlock Text="Dedicated paste hotkey" Foreground="{StaticResource TextMuted}" Margin="0,0,0,8"/>
                             <TextBox x:Name="HotkeyBox" Text="^!v"/>
                             <TextBlock x:Name="HotkeyReadable" Text="Hotkey is Ctrl + Alt + V" Foreground="{StaticResource Accent}" Margin="0,10,0,0"/>
+                            <TextBlock x:Name="HotkeyError" Text="" Foreground="#FF6B6B" Margin="0,6,0,0" Visibility="Collapsed"/>
                         </StackPanel>
                     </Border>
 
@@ -207,6 +208,19 @@
                         <StackPanel>
                             <CheckBox x:Name="StartupCheck" Content="Startup with Windows"/>
                             <CheckBox x:Name="NotificationCheck" Content="Show notification after paste"/>
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock Text="About" FontSize="22" FontWeight="SemiBold" Margin="0,28,0,12"/>
+                    <Border Background="{StaticResource PanelBg}" CornerRadius="14" Padding="18">
+                        <StackPanel>
+                            <TextBlock x:Name="AboutName" Text="SlimPaste" FontSize="18" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="AboutVersion" Text="" Foreground="{StaticResource TextMuted}" Margin="0,4,0,0"/>
+                            <TextBlock Text="Clipboard image compressor — copy, paste, compressed."
+                                       Foreground="{StaticResource TextMuted}" Margin="0,10,0,0"/>
+                            <TextBlock Text="AutoHotkey v2 + PowerShell worker + JPEGli"
+                                       Foreground="{StaticResource TextMuted}" Margin="0,2,0,0"/>
+                            <TextBlock x:Name="AboutCopyright" Text="MIT License" Foreground="{StaticResource TextMuted}" Margin="0,10,0,0"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>

@@ -2,7 +2,8 @@
 param(
     [string]$ConfigPath,
     [string]$DefaultConfigPath,
-    [string]$AxmlPath
+    [string]$AxmlPath,
+    [string]$AppVersion = "v0.2.0"
 )
 
 Set-StrictMode -Version 2.0
@@ -163,6 +164,9 @@ $CleanupDaysBox = C "CleanupDaysBox"
 $OpenTempButton = C "OpenTempButton"
 $StartupCheck = C "StartupCheck"
 $NotificationCheck = C "NotificationCheck"
+$HotkeyError = C "HotkeyError"
+$AboutVersion = C "AboutVersion"
+$AboutCopyright = C "AboutCopyright"
 $SaveButton = C "SaveButton"
 $CancelButton = C "CancelButton"
 $CloseButton = C "CloseButton"
@@ -180,8 +184,48 @@ $StartupCheck.IsChecked = To-Bool (Get-ConfigValue $ini "StartupWithWindows" "0"
 $NotificationCheck.IsChecked = To-Bool (Get-ConfigValue $ini "ShowNotification" "1")
 
 function Update-HotkeyText {
-    $HotkeyReadable.Text = Hotkey-Readable $HotkeyBox.Text
+    $text = $HotkeyBox.Text.Trim()
+    $HotkeyReadable.Text = Hotkey-Readable $text
+
+    if ([string]::IsNullOrWhiteSpace($text)) {
+        $HotkeyError.Text = "Hotkey cannot be empty."
+        $HotkeyError.Visibility = "Visible"
+        return
+    }
+
+    if (-not (Test-ValidHotkey $text)) {
+        $HotkeyError.Text = "Invalid hotkey format. Use modifiers (^ ! + #) + key (e.g. ^!v, #+a, ^F1)."
+        $HotkeyError.Visibility = "Visible"
+    } else {
+        $HotkeyError.Visibility = "Collapsed"
+    }
 }
+
+function Test-ValidHotkey {
+    param([string]$Hotkey)
+    if ([string]::IsNullOrWhiteSpace($Hotkey)) { return $false }
+
+    # Strip modifiers from the start, then check the remainder is a valid key name
+    $key = $Hotkey
+    foreach ($ch in [char[]]'^!+#') { $key = $key.TrimStart($ch) }
+    if ([string]::IsNullOrWhiteSpace($key)) { return $false }
+
+    # Single letter or digit
+    if ($key -match '^[a-zA-Z0-9]$') { return $true }
+
+    # F1-F24
+    if ($key -match '^F(1[0-9]?|2[0-4]?|[2-9])$' -and -not ($key -match '^F0$')) { return $true }
+
+    # Common named keys
+    $named = @('Space','Tab','Enter','Escape','Esc','Backspace','BS','Delete','Del','Insert','Ins',
+               'Home','End','PgUp','PgDn','PageUp','PageDown','Up','Down','Left','Right',
+               'ScrollLock','CapsLock','NumLock','PrintScreen','Pause','Break','AppsKey')
+    return $named -contains $key
+}
+
+# Set About section info
+$AboutVersion.Text = "Version $AppVersion"
+$AboutCopyright.Text = "Copyright (c) 2026 SlimPaste contributors. MIT License."
 
 function Sync-PresetFromQuality {
     $q = [int]$QualitySlider.Value
@@ -261,6 +305,11 @@ $SaveButton.Add_Click({
 
     if ([string]::IsNullOrWhiteSpace($values.Hotkey)) {
         [System.Windows.MessageBox]::Show("Hotkey cannot be empty.", "SlimPaste Setup", "OK", "Warning") | Out-Null
+        return
+    }
+
+    if (-not (Test-ValidHotkey $values.Hotkey)) {
+        [System.Windows.MessageBox]::Show("Invalid hotkey format.`n`nUse modifiers (^ Ctrl, ! Alt, + Shift, # Win) + a key.`nExamples: ^!v, #+a, ^F1, !Space", "SlimPaste Setup", "OK", "Warning") | Out-Null
         return
     }
 

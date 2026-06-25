@@ -12,6 +12,7 @@ defaultConfigPath := appDir "\config\default-config.ini"
 setupPs1 := A_ScriptDir "\settings-wpf.ps1"
 setupAxml := A_ScriptDir "\setup.axml"
 psExe := GetPowerShellPath()
+appVersion := A_Args.Length >= 1 ? A_Args[1] : "v0.2.0"
 
 if !FileExist(setupPs1) {
     MsgBox("settings-wpf.ps1 not found.", "SlimPaste Setup", "Iconx")
@@ -22,6 +23,7 @@ cmdArgs := "-NoProfile -ExecutionPolicy Bypass -STA -File " QuoteArg(setupPs1)
 cmdArgs .= " -ConfigPath " QuoteArg(configPath)
 cmdArgs .= " -DefaultConfigPath " QuoteArg(defaultConfigPath)
 cmdArgs .= " -AxmlPath " QuoteArg(setupAxml)
+cmdArgs .= " -AppVersion " QuoteArg(appVersion)
 
 cmd := A_ComSpec ' /D /C ""' psExe '" ' cmdArgs '""'
 ExitCode := RunWait(cmd, appDir, "Hide")

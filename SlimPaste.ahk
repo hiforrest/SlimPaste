@@ -16,6 +16,7 @@ global DEFAULT_CONFIG_PATH := APP_DIR "\config\default-config.ini"
 global WORKER_PATH := APP_DIR "\worker\clipboard-jpeg-worker.ps1"
 global SETUP_SCRIPT := APP_DIR "\setup\settings_gui.ahk"
 global PS_EXE := GetPowerShellPath()
+global APP_VERSION := "v0.2.0"
 
 global Config := Map()
 global RegisteredHotkey := ""
@@ -73,7 +74,7 @@ LoadConfig() {
         Config["UseJpegli"] := ReadIniBool("UseJpegli", true)
         Config["OutputMode"] := IniRead(CONFIG_PATH, "General", "OutputMode", "jpg_quality")
         Config["Quality"] := ClampInt(IniRead(CONFIG_PATH, "General", "Quality", "80"), 1, 100, 80)
-        Config["TempDirectory"] := IniRead(CONFIG_PATH, "General", "TempDirectory", "%TEMP%\ClipboardJpg")
+        Config["TempDirectory"] := IniRead(CONFIG_PATH, "General", "TempDirectory", "%TEMP%\SlimPaste")
         Config["ImageFallback"] := ReadIniBool("ImageFallback", false)
         Config["CleanupDays"] := ClampInt(IniRead(CONFIG_PATH, "General", "CleanupDays", "7"), 0, 3650, 7)
         Config["ShowNotification"] := ReadIniBool("ShowNotification", true)
@@ -302,7 +303,7 @@ JsonUnescape(s) {
 }
 
 OpenSetup(*) {
-    global SETUP_SCRIPT
+    global SETUP_SCRIPT, APP_VERSION
 
     if !FileExist(SETUP_SCRIPT) {
         ShowTip("Setup", "Setup script not found.")
@@ -310,7 +311,7 @@ OpenSetup(*) {
     }
 
     try {
-        RunWait(QuoteArg(A_AhkPath) " " QuoteArg(SETUP_SCRIPT), APP_DIR)
+        RunWait(QuoteArg(A_AhkPath) " " QuoteArg(SETUP_SCRIPT) " " APP_VERSION, APP_DIR)
     } catch as err {
         ShowTip("Setup failed", err.Message)
         return

@@ -185,6 +185,28 @@ $CleanupDaysBox.Text = Get-ConfigValue $ini "CleanupDays" "7"
 $StartupCheck.IsChecked = To-Bool (Get-ConfigValue $ini "StartupWithWindows" "0")
 $NotificationCheck.IsChecked = To-Bool (Get-ConfigValue $ini "ShowNotification" "1")
 
+# Force ComboBox main display area background to match dark theme
+$inputBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#303030")
+$textMain = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F2F2F2")
+$QualityPresetCombo.Background = $inputBg
+$QualityPresetCombo.Foreground = $textMain
+$QualityPresetCombo.Add_Loaded({
+    # After template is applied, directly set the toggle button background
+    $c = $args[0]
+    $c.ApplyTemplate() | Out-Null
+    $btn = $c.Template.FindName("toggleButton", $c)
+    if ($btn) {
+        $btn.Background = $inputBg
+        $btn.Foreground = $textMain
+        $btn.ApplyTemplate() | Out-Null
+        # Also set border backgrounds inside toggle button template
+        foreach ($name in @("border", "splitBorder", "templateRoot")) {
+            $el = $btn.Template.FindName($name, $btn)
+            if ($el -and $el.Background) { $el.Background = $inputBg }
+        }
+    }
+})
+
 function Update-HotkeyText {
     $text = $HotkeyBox.Text.Trim()
     $HotkeyReadable.Text = Hotkey-Readable $text

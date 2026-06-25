@@ -115,9 +115,10 @@
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
                         Margin="0,0,18,0"
-                        Background="#1E1E1E"
-                        BorderBrush="#1E1E1E"
-                        FontSize="24"/>
+                        Background="{StaticResource ButtonBg}"
+                        BorderBrush="Transparent"
+                        FontSize="28"
+                        Foreground="{StaticResource TextMuted}"/>
             </Grid>
 
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -130,6 +131,8 @@
                             <TextBox x:Name="HotkeyBox" Text="^!v"/>
                             <TextBlock x:Name="HotkeyReadable" Text="Hotkey is Ctrl + Alt + V" Foreground="{StaticResource Accent}" Margin="0,10,0,0"/>
                             <TextBlock x:Name="HotkeyError" Text="" Foreground="#FF6B6B" Margin="0,6,0,0" Visibility="Collapsed"/>
+                            <TextBlock Text="^ = Ctrl    ! = Alt    + = Shift    # = Win"
+                                       Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,0"/>
                         </StackPanel>
                     </Border>
 
@@ -150,6 +153,10 @@
                             <TextBlock Text="Output mode: JPG Quality" Foreground="{StaticResource TextMuted}" Margin="0,0,0,8"/>
                             <TextBlock Text="PNG Lossless: Coming soon" Foreground="{StaticResource TextMuted}" Margin="0,0,0,14"/>
                             <ComboBox x:Name="QualityPresetCombo" SelectedIndex="1">
+                                <ComboBox.Resources>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="{StaticResource InputBg}"/>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}" Color="{StaticResource TextMain}"/>
+                                </ComboBox.Resources>
                                 <ComboBoxItem Content="Small 70" Tag="70"/>
                                 <ComboBoxItem Content="Balanced 80" Tag="80"/>
                                 <ComboBoxItem Content="High 90" Tag="90"/>

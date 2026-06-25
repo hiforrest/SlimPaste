@@ -83,14 +83,16 @@ function Write-Config {
         "StartupWithWindows"
     )
 
-    $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add("[General]")
+    $sb = New-Object System.Text.StringBuilder
+    [void]$sb.AppendLine("[General]")
     foreach ($key in $orderedKeys) {
         $value = if ($Values.ContainsKey($key)) { $Values[$key] } else { "" }
-        $lines.Add("$key=$value")
+        [void]$sb.AppendLine("$key=$value")
     }
 
-    Set-Content -LiteralPath $Path -Value $lines -Encoding UTF8
+    # Write UTF-8 without BOM for best compatibility with AHK IniRead
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText($Path, $sb.ToString(), $utf8NoBom)
 }
 
 function To-Bool {

@@ -26,6 +26,7 @@ Implemented:
 - White-background bitmap flattening
 - Temporary PNG source creation
 - JPEGli first, system JPEG fallback
+- Bundled `cjpegli.exe` at `bin\jpegli\cjpegli.exe`
 - JPG file object written back to clipboard using FileDropList
 - Optional compatibility image fallback
 - JSON worker output
@@ -36,7 +37,6 @@ Not implemented in v1:
 - PNG lossless mode
 - Ctrl+V interception
 - App whitelist
-- Bundled `cjpegli.exe`
 - Full vendored ahko `ahk-xaml` engine
 
 ## Requirements
@@ -44,10 +44,8 @@ Not implemented in v1:
 - Windows
 - AutoHotkey v2
 - Windows PowerShell
-- Optional JPEGli encoder:
-  `D:\GProgram\jxl-x64-windows-static\cjpegli.exe`
 
-The app works without JPEGli by falling back to the Windows system JPEG encoder.
+The app bundles JPEGli at `bin\jpegli\cjpegli.exe`. It falls back to the Windows system JPEG encoder if JPEGli is unavailable.
 
 ## Run
 
@@ -65,7 +63,6 @@ Default config:
 [General]
 Hotkey=^!v
 UseJpegli=1
-JpegliPath=D:\GProgram\jxl-x64-windows-static\cjpegli.exe
 OutputMode=jpg_quality
 Quality=80
 TempDirectory=%TEMP%\SlimPaste
@@ -88,9 +85,10 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File worker\clipboard-jp
   -Quality 80 `
   -Dpi 96 `
   -OutputDirectory "%TEMP%\SlimPaste" `
-  -JpegliPath "D:\GProgram\jxl-x64-windows-static\cjpegli.exe" `
   -JsonOutput
 ```
+
+The worker auto-detects the bundled JPEGli at `bin\jpegli\cjpegli.exe`.
 
 Disable JPEGli:
 
@@ -171,5 +169,5 @@ For a shareable version:
    - `setup`
    - `config`
    - `assets`
-3. Optionally bundle `cjpegli.exe` and point the default config to the bundled path.
-4. Include `LICENSE` and `THIRD_PARTY_NOTICES.md`.
+   - `bin`
+3. Include `LICENSE` and `THIRD_PARTY_NOTICES.md`.

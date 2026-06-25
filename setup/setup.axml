@@ -135,19 +135,11 @@
                     <TextBlock Text="JPEGli" FontSize="22" FontWeight="SemiBold" Margin="0,28,0,12"/>
                     <Border Background="{StaticResource PanelBg}" CornerRadius="14" Padding="18">
                         <StackPanel>
-                            <CheckBox x:Name="UseJpegliCheck" Content="Use JPEGli"/>
-                            <Grid Margin="0,10,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="110"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBox x:Name="JpegliPathBox" Grid.Column="0" Text="D:\GProgram\jxl-x64-windows-static\cjpegli.exe"/>
-                                <Button x:Name="SelectJpegliButton" Grid.Column="2" Content="Select"/>
-                            </Grid>
-                            <TextBlock x:Name="JpegliStatus" Text="JPEGli status" Foreground="{StaticResource TextMuted}" Margin="0,10,0,0"/>
-                            <TextBlock Text="JPEGli creates normal JPG files with better visual quality per byte."
+                            <CheckBox x:Name="UseJpegliCheck" Content="Use JPEGli (bundled)"/>
+                            <TextBlock Text="Normal JPG files with better visual quality per byte."
                                        Foreground="{StaticResource TextMuted}" Margin="0,8,0,0"/>
+                            <TextBlock Text="Bundled at bin\jpegli\cjpegli.exe"
+                                       Foreground="{StaticResource TextMuted}" Margin="0,2,0,0"/>
                         </StackPanel>
                     </Border>
 

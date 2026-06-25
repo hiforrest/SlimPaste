@@ -73,7 +73,6 @@ function Write-Config {
     $orderedKeys = @(
         "Hotkey",
         "UseJpegli",
-        "JpegliPath",
         "OutputMode",
         "Quality",
         "TempDirectory",
@@ -154,9 +153,6 @@ $ini = Read-Ini -Path $ConfigPath
 $HotkeyBox = C "HotkeyBox"
 $HotkeyReadable = C "HotkeyReadable"
 $UseJpegliCheck = C "UseJpegliCheck"
-$JpegliPathBox = C "JpegliPathBox"
-$SelectJpegliButton = C "SelectJpegliButton"
-$JpegliStatus = C "JpegliStatus"
 $QualityPresetCombo = C "QualityPresetCombo"
 $QualitySlider = C "QualitySlider"
 $QualityBox = C "QualityBox"
@@ -174,7 +170,6 @@ $HeaderPanel = C "HeaderPanel"
 
 $HotkeyBox.Text = Get-ConfigValue $ini "Hotkey" "^!v"
 $UseJpegliCheck.IsChecked = To-Bool (Get-ConfigValue $ini "UseJpegli" "1")
-$JpegliPathBox.Text = Get-ConfigValue $ini "JpegliPath" "D:\GProgram\jxl-x64-windows-static\cjpegli.exe"
 $quality = Clamp-Int (Get-ConfigValue $ini "Quality" "80") 1 100 80
 $QualitySlider.Value = $quality
 $QualityBox.Text = [string]$quality
@@ -183,20 +178,6 @@ $TempDirectoryBox.Text = Get-ConfigValue $ini "TempDirectory" "%TEMP%\SlimPaste"
 $CleanupDaysBox.Text = Get-ConfigValue $ini "CleanupDays" "7"
 $StartupCheck.IsChecked = To-Bool (Get-ConfigValue $ini "StartupWithWindows" "0")
 $NotificationCheck.IsChecked = To-Bool (Get-ConfigValue $ini "ShowNotification" "1")
-
-function Update-JpegliStatus {
-    $path = Expand-Env $JpegliPathBox.Text
-    if ([string]::IsNullOrWhiteSpace($path)) {
-        $JpegliStatus.Text = "JPEGli path is empty. System JPEG fallback will be used."
-        $JpegliStatus.Foreground = "#FFBDBDBD"
-    } elseif (Test-Path -LiteralPath $path) {
-        $JpegliStatus.Text = "JPEGli found"
-        $JpegliStatus.Foreground = "#FF6DBBFF"
-    } else {
-        $JpegliStatus.Text = "JPEGli not found. Runtime will use system JPEG fallback."
-        $JpegliStatus.Foreground = "#FFFFC66D"
-    }
-}
 
 function Update-HotkeyText {
     $HotkeyReadable.Text = Hotkey-Readable $HotkeyBox.Text
@@ -214,12 +195,10 @@ function Sync-PresetFromQuality {
     $QualityPresetCombo.SelectedIndex = -1
 }
 
-Update-JpegliStatus
 Update-HotkeyText
 Sync-PresetFromQuality
 
 $HotkeyBox.Add_TextChanged({ Update-HotkeyText })
-$JpegliPathBox.Add_TextChanged({ Update-JpegliStatus })
 
 $HeaderPanel.Add_MouseLeftButtonDown({
     try { $window.DragMove() } catch {}
@@ -243,16 +222,6 @@ $QualityPresetCombo.Add_SelectionChanged({
     $item = $QualityPresetCombo.SelectedItem
     if ($item -and $item.Tag) {
         $QualitySlider.Value = [int]$item.Tag
-    }
-})
-
-$SelectJpegliButton.Add_Click({
-    $dlg = New-Object System.Windows.Forms.OpenFileDialog
-    $dlg.Title = "Select cjpegli.exe"
-    $dlg.Filter = "cjpegli.exe|cjpegli.exe|Executable files (*.exe)|*.exe|All files (*.*)|*.*"
-    $dlg.FileName = "cjpegli.exe"
-    if ($dlg.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        $JpegliPathBox.Text = $dlg.FileName
     }
 })
 
@@ -281,7 +250,6 @@ $SaveButton.Add_Click({
     $values = @{
         Hotkey = $HotkeyBox.Text.Trim()
         UseJpegli = Bool-To-Ini $UseJpegliCheck.IsChecked
-        JpegliPath = $JpegliPathBox.Text.Trim()
         OutputMode = "jpg_quality"
         Quality = [string]$qualityValue
         TempDirectory = $TempDirectoryBox.Text.Trim()

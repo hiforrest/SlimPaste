@@ -261,6 +261,10 @@ try {
         $jpegliSucceeded = $false
 
         if (-not $DisableJpegli) {
+            if ([string]::IsNullOrWhiteSpace($JpegliPath)) {
+                $bundled = Join-Path $PSScriptRoot "..\bin\jpegli\cjpegli.exe"
+                $JpegliPath = [System.IO.Path]::GetFullPath($bundled)
+            }
             $jpegliSucceeded = Invoke-Jpegli -ExePath $JpegliPath -InputPng $tempPng -OutputJpg $jpgPath -Quality $Quality
         }
 

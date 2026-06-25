@@ -53,7 +53,6 @@ WriteDefaultConfig(path) {
     "[General]
 Hotkey=^!v
 UseJpegli=1
-JpegliPath=D:\GProgram\jxl-x64-windows-static\cjpegli.exe
 OutputMode=jpg_quality
 Quality=80
 TempDirectory=%TEMP%\SlimPaste
@@ -72,7 +71,6 @@ LoadConfig() {
     try {
         Config["Hotkey"] := IniRead(CONFIG_PATH, "General", "Hotkey", "^!v")
         Config["UseJpegli"] := ReadIniBool("UseJpegli", true)
-        Config["JpegliPath"] := IniRead(CONFIG_PATH, "General", "JpegliPath", "D:\GProgram\jxl-x64-windows-static\cjpegli.exe")
         Config["OutputMode"] := IniRead(CONFIG_PATH, "General", "OutputMode", "jpg_quality")
         Config["Quality"] := ClampInt(IniRead(CONFIG_PATH, "General", "Quality", "80"), 1, 100, 80)
         Config["TempDirectory"] := IniRead(CONFIG_PATH, "General", "TempDirectory", "%TEMP%\ClipboardJpg")
@@ -216,7 +214,6 @@ RunWorker() {
     args .= " -Quality " Config["Quality"]
     args .= " -Dpi 96"
     args .= " -OutputDirectory " QuoteArg(outputDir)
-    args .= " -JpegliPath " QuoteArg(Config["JpegliPath"])
     if !Config["UseJpegli"]
         args .= " -DisableJpegli"
     if Config["ImageFallback"]

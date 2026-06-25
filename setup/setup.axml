@@ -129,8 +129,8 @@
                     <Border Background="{StaticResource PanelBg}" CornerRadius="14" Padding="18">
                         <StackPanel>
                             <TextBlock Text="Dedicated paste hotkey" Foreground="{StaticResource TextMuted}" Margin="0,0,0,8"/>
-                            <TextBox x:Name="HotkeyBox" Text="^!v"/>
-                            <TextBlock x:Name="HotkeyReadable" Text="Hotkey is Ctrl + Alt + V" Foreground="{StaticResource Accent}" Margin="0,10,0,0"/>
+                            <TextBox x:Name="HotkeyBox" Text="^+v"/>
+                            <TextBlock x:Name="HotkeyReadable" Text="Hotkey is Ctrl + Shift + V" Foreground="{StaticResource Accent}" Margin="0,10,0,0"/>
                             <TextBlock x:Name="HotkeyError" Text="" Foreground="#FF6B6B" Margin="0,6,0,0" Visibility="Collapsed"/>
                             <TextBlock Text="^ = Ctrl    ! = Alt    + = Shift    # = Win"
                                        Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,0"/>

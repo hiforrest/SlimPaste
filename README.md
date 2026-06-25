@@ -2,7 +2,7 @@
 
 A small Windows tray utility based on AutoHotkey v2 and PowerShell.
 
-Copy a screenshot or image, press `Ctrl + Alt + V`, and the tool compresses the clipboard image to a JPG file, places that JPG as a `FileDropList` / file object back onto the clipboard, then sends `Ctrl + V` to the current window.
+Copy a screenshot or image, press `Ctrl + Shift + V`, and the tool compresses the clipboard image to a JPG file, places that JPG as a `FileDropList` / file object back onto the clipboard, then sends `Ctrl + V` to the current window.
 
 普通 `Ctrl + V` 不会被拦截。
 
@@ -10,7 +10,7 @@ Copy a screenshot or image, press `Ctrl + Alt + V`, and the tool compresses the 
 
 Implemented:
 
-- Dedicated configurable global hotkey, default `^!v`
+- Dedicated configurable global hotkey, default `^+v`
 - Tray menu
   - Compress and Paste
   - Setup
@@ -52,7 +52,7 @@ The app bundles JPEGli at `bin\jpegli\cjpegli.exe`. It falls back to the Windows
 1. Install AutoHotkey v2.
 2. Run `SlimPaste.ahk`.
 3. Copy a screenshot or image.
-4. Press `Ctrl + Alt + V`.
+4. Press `Ctrl + Shift + V`.
 5. Paste target receives a compressed JPG file object.
 
 ## Configuration
@@ -61,7 +61,7 @@ Default config:
 
 ```ini
 [General]
-Hotkey=^!v
+Hotkey=^+v
 UseJpegli=1
 OutputMode=jpg_quality
 Quality=80

@@ -52,7 +52,7 @@ WriteDefaultConfig(path) {
     defaultText :=
     (
     "[General]
-Hotkey=^!v
+Hotkey=^+v
 UseJpegli=1
 OutputMode=jpg_quality
 Quality=80
@@ -70,7 +70,7 @@ LoadConfig() {
     global Config, CONFIG_PATH
 
     try {
-        Config["Hotkey"] := IniRead(CONFIG_PATH, "General", "Hotkey", "^!v")
+        Config["Hotkey"] := IniRead(CONFIG_PATH, "General", "Hotkey", "^+v")
         Config["UseJpegli"] := ReadIniBool("UseJpegli", true)
         Config["OutputMode"] := IniRead(CONFIG_PATH, "General", "OutputMode", "jpg_quality")
         Config["Quality"] := ClampInt(IniRead(CONFIG_PATH, "General", "Quality", "80"), 1, 100, 80)
@@ -131,10 +131,10 @@ RegisterConfiguredHotkey() {
         try A_TrayMenu.Uncheck("Pause Hotkey")
     } catch as err {
         ; Fall back to the default hotkey if the configured one is invalid.
-        try Hotkey("^!v", CompressAndPaste, "On")
-        RegisteredHotkey := "^!v"
+        try Hotkey("^+v", CompressAndPaste, "On")
+        RegisteredHotkey := "^+v"
         HotkeyPaused := false
-        ShowTip("Hotkey fallback", "Invalid hotkey in config. Using Ctrl + Alt + V.")
+        ShowTip("Hotkey fallback", "Invalid hotkey in config. Using Ctrl + Shift + V.")
     }
 }
 

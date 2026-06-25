@@ -174,7 +174,7 @@ $CancelButton = C "CancelButton"
 $CloseButton = C "CloseButton"
 $HeaderPanel = C "HeaderPanel"
 
-$HotkeyBox.Text = Get-ConfigValue $ini "Hotkey" "^!v"
+$HotkeyBox.Text = Get-ConfigValue $ini "Hotkey" "^+v"
 $UseJpegliCheck.IsChecked = To-Bool (Get-ConfigValue $ini "UseJpegli" "1")
 $quality = Clamp-Int (Get-ConfigValue $ini "Quality" "80") 1 100 80
 $QualitySlider.Value = $quality
@@ -218,7 +218,7 @@ function Update-HotkeyText {
     }
 
     if (-not (Test-ValidHotkey $text)) {
-        $HotkeyError.Text = "Invalid hotkey format. Use modifiers (^ ! + #) + key (e.g. ^!v, #+a, ^F1)."
+        $HotkeyError.Text = "Invalid hotkey format. Use modifiers (^ ! + #) + key (e.g. ^+v, #+a, ^F1)."
         $HotkeyError.Visibility = "Visible"
     } else {
         $HotkeyError.Visibility = "Collapsed"
@@ -333,7 +333,7 @@ $SaveButton.Add_Click({
     }
 
     if (-not (Test-ValidHotkey $values.Hotkey)) {
-        [System.Windows.MessageBox]::Show("Invalid hotkey format.`n`nUse modifiers (^ Ctrl, ! Alt, + Shift, # Win) + a key.`nExamples: ^!v, #+a, ^F1, !Space", "SlimPaste Setup", "OK", "Warning") | Out-Null
+        [System.Windows.MessageBox]::Show("Invalid hotkey format.`n`nUse modifiers (^ Ctrl, ! Alt, + Shift, # Win) + a key.`nExamples: ^+v, #+a, ^F1, !Space", "SlimPaste Setup", "OK", "Warning") | Out-Null
         return
     }
 

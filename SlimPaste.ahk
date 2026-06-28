@@ -2,6 +2,12 @@
 #SingleInstance Force
 Persistent
 
+;@Ahk2Exe-SetVersion 0.2.0
+;@Ahk2Exe-SetDescription SlimPaste - Clipboard image compression tool
+;@Ahk2Exe-SetCopyright (c) 2026 SlimPaste
+;@Ahk2Exe-SetCompanyName SlimPaste
+;@Ahk2Exe-SetOrigFilename SlimPaste.exe
+
 ; SlimPaste / 剪贴板图片瘦身粘贴
 ; First version:
 ; - Dedicated hotkey only, default Ctrl+Alt+V
@@ -14,7 +20,7 @@ global CONFIG_DIR := A_AppData "\SlimPaste"
 global CONFIG_PATH := CONFIG_DIR "\config.ini"
 global DEFAULT_CONFIG_PATH := APP_DIR "\config\default-config.ini"
 global WORKER_PATH := APP_DIR "\worker\clipboard-jpeg-worker.ps1"
-global SETUP_SCRIPT := APP_DIR "\setup\settings_gui.ahk"
+global SETUP_SCRIPT := APP_DIR "\setup\Settings.exe"
 global PS_EXE := GetPowerShellPath()
 global APP_VERSION := "v0.2.0"
 
@@ -27,6 +33,9 @@ Init()
 return
 
 Init() {
+    ; 设置 AppUserModelID，使 Windows 通知 toast 显示 "SlimPaste" 而非 "AutoHotkey 64-bit"
+    DllCall("shell32\SetCurrentProcessExplicitAppUserModelID", "Str", APP_NAME)
+
     DirCreate(CONFIG_DIR)
     EnsureConfig()
     LoadConfig()
@@ -152,6 +161,7 @@ CreateTrayMenu() {
     A_TrayMenu.Default := "Compress and Paste"
 
     try TraySetIcon(APP_DIR "\assets\icon.ico")
+	A_IconTip := APP_NAME
 }
 
 CompressAndPaste(*) {
@@ -311,7 +321,7 @@ OpenSetup(*) {
     }
 
     try {
-        RunWait(QuoteArg(A_AhkPath) " " QuoteArg(SETUP_SCRIPT) " " APP_VERSION, APP_DIR)
+        RunWait(QuoteArg(SETUP_SCRIPT) " " APP_VERSION, APP_DIR)
     } catch as err {
         ShowTip("Setup failed", err.Message)
         return
@@ -377,7 +387,7 @@ SyncStartupSetting() {
     global Config, APP_NAME
 
     runKey := "HKCU\Software\Microsoft\Windows\CurrentVersion\Run"
-    value := QuoteArg(A_AhkPath) " " QuoteArg(A_ScriptFullPath)
+    value := QuoteArg(A_ScriptFullPath)
 
     try {
         if Config["StartupWithWindows"] {

@@ -1,0 +1,12 @@
+# Claude Code — workspace data (settings, memory, scheduled tasks, worktrees)
+.claude/
+
+# Compiled executables (use GitHub Releases for distribution)
+SlimPaste.exe
+setup/Settings.exe
+
+# Build temp
+_build/
+
+# Release packages (upload to GitHub Releases only)
+SlimPaste-*.zip

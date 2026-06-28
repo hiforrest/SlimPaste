@@ -1,173 +1,76 @@
+<p align="right">
+  <a href="README.en.md">English</a>
+</p>
+
 # SlimPaste / 剪贴板图片瘦身粘贴
 
-A small Windows tray utility based on AutoHotkey v2 and PowerShell.
+**粘贴时自动压缩图片**
 
-Copy a screenshot or image, press `Ctrl + Shift + V`, and the tool compresses the clipboard image to a JPG file, places that JPG as a `FileDropList` / file object back onto the clipboard, then sends `Ctrl + V` to the current window.
+你每次将截屏或复制的图片粘贴到微信、文档中时，系统实际贴入的是一张重新生成的图片。它的体积往往比原图大很多，有时一张截屏可达数 MB，你的微信和文档文件就是这样被一点点撑大的。
 
-普通 `Ctrl + V` 不会被拦截。
+SlimPaste 专门用来解决这个问题。只需按下 Ctrl+Shift+V，图片在粘贴时会自动压缩，在保证肉眼无损的同时，大幅减小图片体积。
 
-## First version status
+使用 SlimPaste，让每次粘贴都轻盈利落。
 
-Implemented:
+---
 
-- Dedicated configurable global hotkey, default `^+v`
-- Tray menu
-  - Compress and Paste
-  - Setup
-  - Open Temp Folder
-  - Pause Hotkey
-  - Reload
-  - Exit
-- Config file at `%APPDATA%\SlimPaste\config.ini`
-- Startup cleanup for old temp files
-- PowerShell STA worker
-- Clipboard image detection
-- Clipboard image-file detection
-- White-background bitmap flattening
-- Temporary PNG source creation
-- JPEGli first, system JPEG fallback
-- Bundled `cjpegli.exe` at `bin\jpegli\cjpegli.exe`
-- JPG file object written back to clipboard using FileDropList
-- Optional compatibility image fallback
-- JSON worker output
-- Modern dark WPF setup window using `setup/setup.axml`
+截图或复制图片后，按下 `Ctrl + Shift + V`，工具会自动将剪贴板中的图片压缩为 JPG 文件，然后将该 JPG 以**文件对象**的形式放回剪贴板，最后模拟粘贴操作。
 
-Not implemented in v1:
+普通 `Ctrl + V` 不会被拦截，日常使用不受影响。
 
-- PNG lossless mode
-- Ctrl+V interception
-- App whitelist
-- Full vendored ahko `ahk-xaml` engine
+## 功能
 
-## Requirements
+- 自定义全局快捷键（默认 `Ctrl + Shift + V`）
+- 截图/图片自动压缩为 JPG，质量可调
+- 以文件对象形式粘贴，可直接插入文档、聊天窗口等
+- 优先使用内置 JPEGli 编码器（更小体积、更好画质），失败时自动回退系统编码器
+- 托盘菜单：执行粘贴 / 设置 / 打开临时目录 / 暂停热键
+- 自动清理过期临时文件
+- 深色风格设置窗口
 
-- Windows
-- AutoHotkey v2
-- Windows PowerShell
+## 使用方式
 
-The app bundles JPEGli at `bin\jpegli\cjpegli.exe`. It falls back to the Windows system JPEG encoder if JPEGli is unavailable.
+1. 下载 [Releases](https://github.com/hiforrest/SlimPaste/releases) 中的 `SlimPaste-v0.2.0.zip`
+2. 解压，运行 `SlimPaste.exe`
+3. 截图或复制一张图片
+4. 按 `Ctrl + Shift + V`
+5. 在目标窗口（聊天、文档、笔记等）中即粘贴为压缩后的 JPG 文件
 
-## Run
+> 无需安装 AutoHotkey。
 
-1. Install AutoHotkey v2.
-2. Run `SlimPaste.ahk`.
-3. Copy a screenshot or image.
-4. Press `Ctrl + Shift + V`.
-5. Paste target receives a compressed JPG file object.
+## 配置
 
-## Configuration
+右键托盘图标 → **Setup** 打开设置窗口。
 
-Default config:
+配置文件路径：
 
-```ini
-[General]
-Hotkey=^+v
-UseJpegli=1
-OutputMode=jpg_quality
-Quality=80
-TempDirectory=%TEMP%\SlimPaste
-ImageFallback=0
-CleanupDays=7
-ShowNotification=1
-StartupWithWindows=0
 ```
-
-Runtime config is stored in:
-
-```text
 %APPDATA%\SlimPaste\config.ini
 ```
 
-## PowerShell worker command shape
+| 配置项 | 默认值 | 说明 |
+|---|---|---|
+| Hotkey | `^+v` | 快捷键（`^`=Ctrl `+`=Shift `!`=Alt `#`=Win） |
+| Quality | `80` | JPG 质量（1–100） |
+| UseJpegli | `1` | 使用内置 JPEGli 编码器 |
+| TempDirectory | `%TEMP%\SlimPaste` | 临时文件目录 |
+| CleanupDays | `7` | 自动清理 N 天前的临时文件 |
+| ShowNotification | `1` | 粘贴后显示通知 |
+| StartupWithWindows | `0` | 开机自启 |
 
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File worker\clipboard-jpeg-worker.ps1 `
-  -Quality 80 `
-  -Dpi 96 `
-  -OutputDirectory "%TEMP%\SlimPaste" `
-  -JsonOutput
-```
+## 系统需求
 
-The worker auto-detects the bundled JPEGli at `bin\jpegli\cjpegli.exe`.
+- Windows 7 及以上（64 位）
 
-Disable JPEGli:
+## 附注
 
-```powershell
--DisableJpegli
-```
+- 如果 JPEGli 编码器不可用，会自动回退到 Windows 系统自带的 GDI+ JPEG 编码器，功能不受影响
+- 临时文件默认保存在 `%TEMP%\SlimPaste`，可在设置中修改
 
-Compatibility fallback:
+## 构建
 
-```powershell
--ImageFallback
-```
+源码使用 AutoHotkey v2，如需自行编译：
 
-## Worker JSON output
-
-Image success:
-
-```json
-{
-  "ok": true,
-  "hadImage": true,
-  "encoder": "jpegli",
-  "source": "clipboard image data",
-  "jpgPath": "C:\\Users\\xxx\\AppData\\Local\\Temp\\SlimPaste\\clipboard_20260625_123456_000.jpg",
-  "sourceBytes": 1250000,
-  "outputBytes": 182000,
-  "width": 1920,
-  "height": 1080,
-  "quality": 80,
-  "message": "OK"
-}
-```
-
-Not an image:
-
-```json
-{
-  "ok": true,
-  "hadImage": false,
-  "message": "Clipboard does not contain an image."
-}
-```
-
-## File object behavior
-
-The worker uses Windows Forms `DataObject.SetFileDropList(...)`, then calls `Clipboard.SetDataObject(...)`.
-
-This means the clipboard receives a JPG file object, not a text path.
-
-## Notes on JPG wording
-
-This project should not describe PNG-to-JPG conversion as "lossless JPG compression".
-
-JPEGli outputs normal JPG files. The product value is better visual quality per byte compared with traditional JPEG encoders. If a future "lossless mode" is added, it should keep PNG format and perform PNG lossless optimization instead of converting to JPG.
-
-## UI architecture
-
-The repository mirrors the ahko setup organization:
-
-```text
-lib/ahk-xaml/
-setup/setup.axml
-setup/settings_gui.ahk
-themes.ini
-```
-
-For this first version, `settings_gui.ahk` launches a WPF/XAML settings window hosted by PowerShell. This avoids AutoHotkey native GUI controls and keeps the UI layout separated from logic.
-
-If you later vendor ahko's ahk-xaml engine under `lib/ahk-xaml/`, keep its MIT license notice.
-
-## Suggested release packaging
-
-For a shareable version:
-
-1. Use Ahk2Exe to compile `SlimPaste.ahk`.
-2. Keep these folders beside the exe:
-   - `worker`
-   - `setup`
-   - `config`
-   - `assets`
-   - `bin`
-3. Include `LICENSE` and `THIRD_PARTY_NOTICES.md`.
+1. 安装 AutoHotkey v2
+2. 使用 Ahk2Exe 编译 `SlimPaste.ahk` 和 `setup\settings_gui.ahk`
+3. 保留 `worker`、`setup`、`config`、`assets`、`bin` 目录与 exe 同级

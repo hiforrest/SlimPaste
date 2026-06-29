@@ -6,6 +6,8 @@
 
 **Auto-compress images while pasting**
 
+![Slim Robot](README.en.assets/ani.avif)
+
 Whenever you paste a screenshot or copied image into WeChat or a document, the system often inserts a newly generated image. That file can be larger than the original, slowly bloating your chats and office files.
 
 SlimPaste is built to solve this. Press Ctrl+Shift+V and your image is compressed automatically during paste, keeping it visually lossless while greatly reducing file size.

@@ -15,6 +15,7 @@
 appDir := RegExReplace(A_ScriptDir, "\\setup$")
 configPath := A_AppData "\SlimPaste\config.ini"
 defaultConfigPath := appDir "\config\default-config.ini"
+themePath := appDir "\themes.ini"
 setupPs1 := A_ScriptDir "\settings-wpf.ps1"
 setupAxml := A_ScriptDir "\setup.axml"
 psExe := GetPowerShellPath()
@@ -30,6 +31,7 @@ cmdArgs .= " -ConfigPath " QuoteArg(configPath)
 cmdArgs .= " -DefaultConfigPath " QuoteArg(defaultConfigPath)
 cmdArgs .= " -AxmlPath " QuoteArg(setupAxml)
 cmdArgs .= " -AppVersion " QuoteArg(appVersion)
+cmdArgs .= " -ThemePath " QuoteArg(themePath)
 
 cmd := A_ComSpec ' /D /C ""' psExe '" ' cmdArgs '""'
 ExitCode := RunWait(cmd, appDir, "Hide")

@@ -2,9 +2,11 @@
   <a href="README.en.md">English</a>
 </p>
 
-# SlimPaste / 剪贴板图片瘦身粘贴
+# SlimPaste
 
 **粘贴时自动压缩图片**
+
+![Slim Robot](README.assets/ani.avif)
 
 你每次将截屏或复制的图片粘贴到微信、文档中时，系统实际贴入的是一张重新生成的图片。它的体积往往比原图大很多，有时一张截屏可达数 MB，你的微信和文档文件就是这样被一点点撑大的。
 

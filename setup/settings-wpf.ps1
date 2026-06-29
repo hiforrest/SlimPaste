@@ -3,7 +3,8 @@ param(
     [string]$ConfigPath,
     [string]$DefaultConfigPath,
     [string]$AxmlPath,
-    [string]$AppVersion = "v0.2.0"
+    [string]$AppVersion = "v0.2.0",
+    [string]$ThemePath
 )
 
 Set-StrictMode -Version 2.0
@@ -124,12 +125,22 @@ function Hotkey-Readable {
     param([string]$Hotkey)
     if ([string]::IsNullOrWhiteSpace($Hotkey)) { return "Hotkey is not set" }
 
-    $text = $Hotkey
-    $text = $text.Replace("^", "Ctrl + ")
-    $text = $text.Replace("!", "Alt + ")
-    $text = $text.Replace("+", "Shift + ")
-    $text = $text.Replace("#", "Win + ")
-    return "Hotkey is " + $text.Trim(" +".ToCharArray())
+    # Only process modifier prefix (^ ! + #) at the start of the string
+    if ($Hotkey -match '^([\^!+#]+)(.+)$') {
+        $mods = $Matches[1]
+        $key = $Matches[2]
+        $text = ""
+        foreach ($ch in $mods.ToCharArray()) {
+            switch ($ch) {
+                '^' { $text += "Ctrl + " }
+                '!' { $text += "Alt + " }
+                '+' { $text += "Shift + " }
+                '#' { $text += "Win + " }
+            }
+        }
+        return "Hotkey is " + $text + $key
+    }
+    return "Hotkey is " + $Hotkey
 }
 
 if (-not (Test-Path -LiteralPath $ConfigPath)) {
@@ -143,6 +154,34 @@ if (-not (Test-Path -LiteralPath $ConfigPath)) {
 }
 
 [xml]$xaml = Get-Content -LiteralPath $AxmlPath -Raw -Encoding UTF8
+
+# Load theme colors from themes.ini and apply to XAML before parsing
+$themeColors = @{}
+$themePath = if ($ThemePath) { $ThemePath } else { Join-Path $PWD.Path "themes.ini" }
+if (Test-Path -LiteralPath $themePath) {
+    $themeIni = Read-Ini -Path $themePath
+    $theme = $themeIni["Dark"]
+
+    if ($theme) {
+    $themeColors["WindowBg"]    = if ($theme.ContainsKey("WindowBg"))    { $theme["WindowBg"] }    else { "#1E1E1E" }
+    $themeColors["PanelBg"]     = if ($theme.ContainsKey("PanelBg"))     { $theme["PanelBg"] }     else { "#242424" }
+    $themeColors["InputBg"]     = if ($theme.ContainsKey("InputBg"))     { $theme["InputBg"] }     else { "#303030" }
+    $themeColors["ButtonBg"]    = if ($theme.ContainsKey("ButtonBg"))    { $theme["ButtonBg"] }    else { "#2B2B2B" }
+    $themeColors["Accent"]      = if ($theme.ContainsKey("Accent"))      { $theme["Accent"] }      else { "#4DA3FF" }
+    $themeColors["TextMain"]    = if ($theme.ContainsKey("TextMain"))    { $theme["TextMain"] }    else { "#F2F2F2" }
+    $themeColors["TextMuted"]   = if ($theme.ContainsKey("TextMuted"))   { $theme["TextMuted"] }   else { "#BDBDBD" }
+    $themeColors["BorderMuted"] = if ($theme.ContainsKey("BorderMuted")) { $theme["BorderMuted"] } else { "#3A3A3A" }
+
+    # Modify SolidColorBrush Color attributes in XAML XML before XamlReader parses it
+    $xaml.SelectNodes("//*[local-name()='SolidColorBrush']") | ForEach-Object {
+        $key = $_.GetAttribute("x:Key")
+        if ($key -and $themeColors.ContainsKey($key)) {
+            $_.SetAttribute("Color", $themeColors[$key])
+        }
+    }
+    }
+}
+
 $reader = New-Object System.Xml.XmlNodeReader $xaml
 $window = [Windows.Markup.XamlReader]::Load($reader)
 
@@ -186,8 +225,8 @@ $StartupCheck.IsChecked = To-Bool (Get-ConfigValue $ini "StartupWithWindows" "0"
 $NotificationCheck.IsChecked = To-Bool (Get-ConfigValue $ini "ShowNotification" "1")
 
 # Force ComboBox main display area background to match dark theme
-$inputBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#303030")
-$textMain = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F2F2F2")
+$inputBg = $window.Resources["InputBg"]
+$textMain = $window.Resources["TextMain"]
 $QualityPresetCombo.Background = $inputBg
 $QualityPresetCombo.Foreground = $textMain
 $QualityPresetCombo.Add_Loaded({

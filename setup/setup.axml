@@ -102,7 +102,7 @@
                 <RowDefinition Height="74"/>
             </Grid.RowDefinitions>
 
-            <Grid x:Name="HeaderPanel" Grid.Row="0" Background="#1E1E1E">
+            <Grid x:Name="HeaderPanel" Grid.Row="0" Background="{StaticResource WindowBg}">
                 <TextBlock Text="SlimPaste Setup"
                            FontSize="24"
                            FontWeight="SemiBold"
@@ -251,7 +251,7 @@
                 </StackPanel>
             </ScrollViewer>
 
-            <Border Grid.Row="2" Background="#1B1B1B" CornerRadius="0,0,18,18" BorderBrush="#303030" BorderThickness="0,1,0,0">
+            <Border Grid.Row="2" Background="{StaticResource PanelBg}" CornerRadius="0,0,18,18" BorderBrush="{StaticResource BorderMuted}" BorderThickness="0,1,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,28,0">
                     <Button x:Name="CancelButton" Content="Cancel" Width="110" Margin="0,0,12,0"/>
                     <Button x:Name="SaveButton" Content="Save" Width="110" Style="{StaticResource AccentButton}"/>

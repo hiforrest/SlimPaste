@@ -1,7 +1,7 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Off
 
-;@Ahk2Exe-SetVersion 0.2.0
+;@Ahk2Exe-SetVersion 0.3.0
 ;@Ahk2Exe-SetDescription SlimPaste Setup
 ;@Ahk2Exe-SetCopyright (c) 2026 SlimPaste
 ;@Ahk2Exe-SetCompanyName SlimPaste

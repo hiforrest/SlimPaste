@@ -2,7 +2,7 @@
 #SingleInstance Force
 Persistent
 
-;@Ahk2Exe-SetVersion 0.2.0
+;@Ahk2Exe-SetVersion 0.3.0
 ;@Ahk2Exe-SetDescription SlimPaste - Clipboard image compression tool
 ;@Ahk2Exe-SetCopyright (c) 2026 SlimPaste
 ;@Ahk2Exe-SetCompanyName SlimPaste
@@ -22,7 +22,7 @@ global DEFAULT_CONFIG_PATH := APP_DIR "\config\default-config.ini"
 global WORKER_PATH := APP_DIR "\worker\clipboard-jpeg-worker.ps1"
 global SETUP_SCRIPT := APP_DIR "\setup\Settings.exe"
 global PS_EXE := GetPowerShellPath()
-global APP_VERSION := "v0.2.0"
+global APP_VERSION := "v0.3.0"
 
 global Config := Map()
 global RegisteredHotkey := ""

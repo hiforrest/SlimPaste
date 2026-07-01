@@ -211,7 +211,7 @@
                                     <ColumnDefinition Width="12"/>
                                     <ColumnDefinition Width="110"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBox x:Name="TempDirectoryBox" Grid.Column="0" Text="%TEMP%\SlimPaste"/>
+                                <TextBox x:Name="TempDirectoryBox" Grid.Column="0" Text=".\temp"/>
                                 <Button x:Name="SelectTempButton" Grid.Column="2" Content="Select"/>
                             </Grid>
 

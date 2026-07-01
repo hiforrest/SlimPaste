@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "v0.2.0"
+    [string]$Version = "v0.4.0"
 )
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -20,6 +20,7 @@ $files = @(
     "worker\clipboard-jpeg-worker.ps1",
     "bin\jpegli\cjpegli.exe",
     "config\default-config.ini",
+    "themes.ini",
     "assets\icon.ico",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",

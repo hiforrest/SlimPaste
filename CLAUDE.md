@@ -19,7 +19,7 @@ setup/
   settings-wpf.ps1     # PowerShell WPF host: loads XAML, handles events, saves config
   setup.axml           # XAML layout for the dark-themed settings window
 config/
-  default-config.ini   # Shipped default config (copied to %APPDATA%\SlimPaste\ on first run)
+  default-config.ini   # Shipped default config (copied alongside exe on first run)
 bin/jpegli/
   cjpegli.exe          # Bundled JPEGli encoder
 lib/ahk-xaml/          # Placeholder for future ahk-xaml engine vendoring
@@ -43,19 +43,19 @@ lib/ahk-xaml/          # Placeholder for future ahk-xaml engine vendoring
 
 ## Config File Location
 
-`%APPDATA%\SlimPaste\config.ini`
+`config.ini` 与 `SlimPaste.exe` 同目录（绿色软件零写盘）。
 
-| Key | Type | Default | Description |
-|---|---|---|---|
-| Hotkey | string | `^+v` | AHK hotkey, `^`=Ctrl `!`=Alt `+`=Shift `#`=Win |
-| UseJpegli | bool | 1 | Use bundled JPEGli encoder |
-| OutputMode | string | `jpg_quality` | Compression mode |
-| Quality | int (1-100) | 80 | JPG quality |
-| TempDirectory | string | `%TEMP%\SlimPaste` | Temporary output dir |
-| ImageFallback | bool | 0 | Also put image data on clipboard |
-| CleanupDays | int | 7 | Auto-delete temp files older than N days |
-| ShowNotification | bool | 1 | Tray notification after paste |
-| StartupWithWindows | bool | 0 | Auto-start with Windows |
+| Key                | Type        | Default                | Description                                    |
+| ------------------ | ----------- | ---------------------- | ---------------------------------------------- |
+| Hotkey             | string      | `^+v`                  | AHK hotkey, `^`=Ctrl `!`=Alt `+`=Shift `#`=Win |
+| UseJpegli          | bool        | 1                      | Use bundled JPEGli encoder                     |
+| OutputMode         | string      | `jpg_quality`          | Compression mode                               |
+| Quality            | int (1-100) | 80                     | JPG quality                                    |
+| TempDirectory      | string      | `.\temp`（exe 同目录） | Temporary output dir                           |
+| ImageFallback      | bool        | 0                      | Also put image data on clipboard               |
+| CleanupDays        | int         | 7                      | Auto-delete temp files older than N days       |
+| ShowNotification   | bool        | 1                      | Tray notification after paste                  |
+| StartupWithWindows | bool        | 0                      | Auto-start with Windows                        |
 
 ## How to Run
 
@@ -75,6 +75,28 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File worker\clipboard-jp
 powershell -NoProfile -STA -Command "Add-Type -AssemblyName PresentationFramework; [xml]$x = Get-Content setup\setup.axml -Raw; [Windows.Markup.XamlReader]::Load((New-Object System.Xml.XmlNodeReader $x))"
 ```
 
+## Compile to EXE
+
+在 **Git Bash** 中编译时必须加 `MSYS2_ARG_CONV_EXCL='*'` 前缀，否则 Git Bash 会把 `/in`、`/out`、`/base` 参数误转成 Unix 路径导致编译失败：
+
+```bash
+# 编译主程序（/icon 传绝对路径避免 Ahk2Exe 弹窗报错）
+MSYS2_ARG_CONV_EXCL='*' "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe" \
+  /in "SlimPaste.ahk" \
+  /base "C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe" \
+  /out "SlimPaste.exe" \
+  /icon "assets\icon.ico"
+
+# 编译设置窗口
+MSYS2_ARG_CONV_EXCL='*' "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe" \
+  /in "setup\settings_gui.ahk" \
+  /base "C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe" \
+  /out "setup\Settings.exe" \
+  /icon "assets\icon.ico"
+```
+
+PowerShell / cmd 中不需要 `MSYS2_ARG_CONV_EXCL`，直接调用即可。
+
 ## Commit Convention
 
 `<type>(<scope>): <描述>`
@@ -83,6 +105,7 @@ Type: feat, fix, refactor, docs
 Scope: script/component name (optional for cross-cutting changes)
 
 Example messages in existing history:
+
 - `feat: 项目更名为 SlimPaste`
 - `fix: 关闭按钮不可见 + ComboBox 下拉高亮/边框问题`
 - `fix(ClipboardJpgPaste): 修复 cmd.exe /C 参数引用导致 PowerShell worker 无输出的问题`

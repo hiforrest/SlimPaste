@@ -2,7 +2,7 @@
 #SingleInstance Force
 Persistent
 
-;@Ahk2Exe-SetVersion 0.3.0
+;@Ahk2Exe-SetVersion 0.4.0
 ;@Ahk2Exe-SetDescription SlimPaste - Clipboard image compression tool
 ;@Ahk2Exe-SetCopyright (c) 2026 SlimPaste
 ;@Ahk2Exe-SetCompanyName SlimPaste
@@ -16,13 +16,13 @@ Persistent
 
 global APP_NAME := "SlimPaste"
 global APP_DIR := A_ScriptDir
-global CONFIG_DIR := A_AppData "\SlimPaste"
+global CONFIG_DIR := APP_DIR
 global CONFIG_PATH := CONFIG_DIR "\config.ini"
 global DEFAULT_CONFIG_PATH := APP_DIR "\config\default-config.ini"
 global WORKER_PATH := APP_DIR "\worker\clipboard-jpeg-worker.ps1"
 global SETUP_SCRIPT := APP_DIR "\setup\Settings.exe"
 global PS_EXE := GetPowerShellPath()
-global APP_VERSION := "v0.3.0"
+global APP_VERSION := "v0.4.0"
 
 global Config := Map()
 global RegisteredHotkey := ""
@@ -41,6 +41,7 @@ Init() {
     LoadConfig()
     CreateTrayMenu()
     CleanupOldTempFiles()
+    MigrateFromAppData()
     SyncStartupSetting()
     RegisterConfiguredHotkey()
 }
@@ -65,7 +66,7 @@ Hotkey=^+v
 UseJpegli=1
 OutputMode=jpg_quality
 Quality=80
-TempDirectory=%TEMP%\SlimPaste
+TempDirectory=.\temp
 ImageFallback=0
 CleanupDays=7
 ShowNotification=1
@@ -83,7 +84,7 @@ LoadConfig() {
         Config["UseJpegli"] := ReadIniBool("UseJpegli", true)
         Config["OutputMode"] := IniRead(CONFIG_PATH, "General", "OutputMode", "jpg_quality")
         Config["Quality"] := ClampInt(IniRead(CONFIG_PATH, "General", "Quality", "80"), 1, 100, 80)
-        Config["TempDirectory"] := IniRead(CONFIG_PATH, "General", "TempDirectory", "%TEMP%\SlimPaste")
+        Config["TempDirectory"] := IniRead(CONFIG_PATH, "General", "TempDirectory", APP_DIR "\temp")
         Config["ImageFallback"] := ReadIniBool("ImageFallback", false)
         Config["CleanupDays"] := ClampInt(IniRead(CONFIG_PATH, "General", "CleanupDays", "7"), 0, 3650, 7)
         Config["ShowNotification"] := ReadIniBool("ShowNotification", true)
@@ -313,15 +314,25 @@ JsonUnescape(s) {
 }
 
 OpenSetup(*) {
-    global SETUP_SCRIPT, APP_VERSION
+    global PS_EXE, APP_VERSION, CONFIG_PATH, DEFAULT_CONFIG_PATH, APP_DIR
 
-    if !FileExist(SETUP_SCRIPT) {
+    setupPs1 := APP_DIR "\setup\settings-wpf.ps1"
+    setupAxml := APP_DIR "\setup\setup.axml"
+
+    if !FileExist(setupPs1) {
         ShowTip("Setup", "Setup script not found.")
         return
     }
 
+    cmdArgs := "-NoProfile -ExecutionPolicy Bypass -STA -File " QuoteArg(setupPs1)
+    cmdArgs .= " -ConfigPath " QuoteArg(CONFIG_PATH)
+    cmdArgs .= " -DefaultConfigPath " QuoteArg(DEFAULT_CONFIG_PATH)
+    cmdArgs .= " -AxmlPath " QuoteArg(setupAxml)
+    cmdArgs .= " -AppVersion " QuoteArg(APP_VERSION)
+    cmdArgs .= " -ThemePath " QuoteArg(APP_DIR "\themes.ini")
+
     try {
-        RunWait(QuoteArg(SETUP_SCRIPT) " " APP_VERSION, APP_DIR)
+        RunWait(QuoteArg(PS_EXE) " " cmdArgs, APP_DIR, "Hide")
     } catch as err {
         ShowTip("Setup failed", err.Message)
         return
@@ -398,6 +409,36 @@ SyncStartupSetting() {
     }
 }
 
+MigrateFromAppData() {
+    global CONFIG_PATH
+    oldConfigPath := A_AppData "\SlimPaste\config.ini"
+    if !FileExist(oldConfigPath) || FileExist(CONFIG_PATH)
+        return
+
+    dir := CONFIG_PATH
+    dir := SubStr(dir, 1, InStr(dir, "\", , -1) - 1)
+    DirCreate(dir)
+
+    try {
+        FileCopy(oldConfigPath, CONFIG_PATH, false)
+
+        ; Update TempDirectory from old default to new exe-relative default
+        currentTemp := IniRead(CONFIG_PATH, "General", "TempDirectory", "")
+        if currentTemp = "%TEMP%\SlimPaste"
+            IniWrite(".\temp", CONFIG_PATH, "General", "TempDirectory")
+
+        ; Clean up old temp files
+        oldTempDir := A_Temp "\SlimPaste"
+        if DirExist(oldTempDir) {
+            Loop Files, oldTempDir "\*.*", "F"
+                try FileDelete(A_LoopFileFullPath)
+            try DirDelete(oldTempDir)
+        }
+
+        ShowTip("Config migrated", "Settings moved to " CONFIG_PATH)
+    }
+}
+
 ShowTip(title, text) {
     try TrayTip(text, title, 1)
 }
@@ -426,6 +467,9 @@ HotkeyHumanReadable(hk) {
 }
 
 ExpandEnvVars(value) {
+    ; Resolve .\ or ./ prefix relative to script directory
+    if RegExMatch(value, "^\.[\\/]", &m)
+        value := APP_DIR SubStr(value, 2)
     buf := Buffer(32767 * 2, 0)
     len := DllCall("ExpandEnvironmentStrings", "Str", value, "Ptr", buf.Ptr, "UInt", 32767, "UInt")
     if len = 0

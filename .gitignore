@@ -10,3 +10,6 @@ _build/
 
 # Release packages (upload to GitHub Releases only)
 SlimPaste-*.zip
+
+# Local runtime config
+config.ini

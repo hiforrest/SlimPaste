@@ -1,7 +1,7 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Off
 
-;@Ahk2Exe-SetVersion 0.3.0
+;@Ahk2Exe-SetVersion 0.4.0
 ;@Ahk2Exe-SetDescription SlimPaste Setup
 ;@Ahk2Exe-SetCopyright (c) 2026 SlimPaste
 ;@Ahk2Exe-SetCompanyName SlimPaste
@@ -13,7 +13,7 @@
 ; You can later replace settings-wpf.ps1 with an ahk-xaml adapter without changing config semantics.
 
 appDir := RegExReplace(A_ScriptDir, "\\setup$")
-configPath := A_AppData "\SlimPaste\config.ini"
+configPath := appDir "\config.ini"
 defaultConfigPath := appDir "\config\default-config.ini"
 themePath := appDir "\themes.ini"
 setupPs1 := A_ScriptDir "\settings-wpf.ps1"

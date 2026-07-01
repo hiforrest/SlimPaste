@@ -3,10 +3,15 @@ SlimPaste.ahk
 FILE_LIST.txt
 LICENSE
 README.md
+README.en.md
+README.assets/ani.avif
 THIRD_PARTY_NOTICES.md
 assets/README.md
+assets/icon.ico
+bin/jpegli/cjpegli.exe
 config/default-config.ini
 lib/ahk-xaml/README.md
+_release/package.ps1
 setup/settings-wpf.ps1
 setup/settings_gui.ahk
 setup/setup.axml

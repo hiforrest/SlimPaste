@@ -80,7 +80,7 @@ powershell -NoProfile -STA -Command "Add-Type -AssemblyName PresentationFramewor
 在 **Git Bash** 中编译时必须加 `MSYS2_ARG_CONV_EXCL='*'` 前缀，否则 Git Bash 会把 `/in`、`/out`、`/base` 参数误转成 Unix 路径导致编译失败：
 
 ```bash
-# 编译主程序（/icon 传绝对路径避免 Ahk2Exe 弹窗报错）
+# 编译主程序
 MSYS2_ARG_CONV_EXCL='*' "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe" \
   /in "SlimPaste.ahk" \
   /base "C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe" \
@@ -96,6 +96,11 @@ MSYS2_ARG_CONV_EXCL='*' "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe" \
 ```
 
 PowerShell / cmd 中不需要 `MSYS2_ARG_CONV_EXCL`，直接调用即可。
+
+### 图标编译注意事项
+
+- **不要**在源码中用 `;@Ahk2Exe-SetIcon` 指令——新版 Ahk2Exe 处理该指令时会弹出错误弹窗并阻塞编译（即使图标文件路径正确）。改用命令行 `/icon` 参数可避免此问题。
+- 编译后被旧版 Ahk2Exe 编译的 exe 图标可能是 AHK 默认图标，而非 SlimPaste 图标。确保使用正确的 Ahk2Exe 版本（v2 兼容版）并传入 `/icon` 参数即可获得正确图标。
 
 ## Commit Convention
 
